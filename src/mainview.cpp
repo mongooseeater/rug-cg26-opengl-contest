@@ -65,7 +65,7 @@ void MainView::initializeGL() {
   glClearColor(0.37f, 0.42f, 0.45f, 0.0f);
 
   createShaderProgram();
-  loadMesh(":/models/cat.obj");
+  loadMeshes(QVector<QString>(":/models/cat.obj"));
 
   // Initialize transformations
   updateProjectionTransform();
@@ -85,17 +85,37 @@ void MainView::createShaderProgram() {
 }
 
 /**
- * @brief MainView::loadMesh Loads a mesh from a given file. Note that only one
- * mesh can be loaded at a time.
- * @param filename Filename of where the mesh is located.
+ * @brief MainView::loadMeshes Loads meshes from a list of filenames.
+ * @param filename Filenames of the meshes to be loaded. They will be assigned sequential mesh IDs starting from 0.
  */
-void MainView::loadMesh(const QString &filename) {
-  Model model(filename);
-  QVector<QVector3D> meshCoords = model.getCoords();
-  QVector<QVector3D> meshNormals = model.getNormals();
-  QVector<QVector2D> meshTexCoords = model.getTextureCoords();
+void MainView::loadMeshes(const QVector<QString> &filenames) {
+  QVector<Model> models;
+  int modelCount = filenames.size();
+  models.reserve(modelCount);
+  for (int i = 0; i < modelCount; i++) models.append(Model(filenames[i]));
 
-  meshSize = meshCoords.size();
+  // find total size of "supermesh" obtained by combining model meshes
+  meshSize = 0;
+  for (auto m : models) meshSize += m.getCoords().size();
+  qDebug() << "Total supermesh size:" << meshSize;
+
+  QVector<QVector3D> meshCoords; // model.getCoords();
+  QVector<QVector3D> meshNormals; // model.getNormals();
+  QVector<QVector2D> meshTexCoords; // model.getTextureCoords();
+  QVector<int> meshIds;
+  meshCoords.reserve(meshSize);
+  meshNormals.reserve(meshSize);
+  meshTexCoords.reserve(meshSize);
+  meshIds.reserve(meshSize);
+
+  // combine individual mesh data into one "supermesh"
+  for (int i = 0; i < modelCount; i++) {
+    meshCoords.append(models[i].getCoords());
+    meshNormals.append(models[i].getNormals());
+    meshTexCoords.append(models[i].getTextureCoords());
+    auto size = models[i].getCoords().size();
+    for (int x = 0; x < size; x++) meshIds.append(i);
+  }
 
   // Generate VAO
   glGenVertexArrays(1, &meshVAO);
@@ -105,6 +125,7 @@ void MainView::loadMesh(const QString &filename) {
   glGenBuffers(1, &meshPositionVBO);
   glGenBuffers(1, &meshNormalVBO);
   glGenBuffers(1, &meshTexCoordVBO);
+  glGenBuffers(1, &meshIdVBO);
 
   // vertex coordinates -> copy into position VBO
   glBindBuffer(GL_ARRAY_BUFFER, meshPositionVBO);
@@ -117,10 +138,10 @@ void MainView::loadMesh(const QString &filename) {
                         reinterpret_cast<GLvoid *>(0));
   glEnableVertexAttribArray(0);
 
-  //normals -> copy into normal VBO
+  // normals -> copy into normal VBO
   glBindBuffer(GL_ARRAY_BUFFER, meshNormalVBO);
   glBufferData(GL_ARRAY_BUFFER,
-               meshNormals.size() * sizeof(QVector3D),
+               meshSize * sizeof(QVector3D),
                meshNormals.data(),
                GL_STATIC_DRAW);
 
@@ -132,7 +153,7 @@ void MainView::loadMesh(const QString &filename) {
   // UV data (texture coordinates) -> texture coordinates VBO
   glBindBuffer(GL_ARRAY_BUFFER, meshTexCoordVBO);
   glBufferData(GL_ARRAY_BUFFER,
-                meshTexCoords.size() * sizeof(QVector2D),
+                meshSize * sizeof(QVector2D),
                 meshTexCoords.data(),
                 GL_STATIC_DRAW);
 
@@ -140,6 +161,18 @@ void MainView::loadMesh(const QString &filename) {
   glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(QVector2D),
                          reinterpret_cast<GLvoid *>(0));
   glEnableVertexAttribArray(2);
+
+  // mesh ids -> copy into meshID VBO
+  glBindBuffer(GL_ARRAY_BUFFER, meshIdVBO);
+  glBufferData(GL_ARRAY_BUFFER,
+               meshSize * sizeof(int),
+               meshIds.data(),
+               GL_STATIC_DRAW);
+
+  // mesh ids to location 3
+  glVertexAttribPointer(3, 1, GL_INT, GL_FALSE, sizeof(int),
+                        reinterpret_cast<GLvoid *>(0));
+  glEnableVertexAttribArray(3);
 
   // Generally good practice to unbind the buffers to prevent anything after
   // this from accidentally modifying it.
@@ -255,6 +288,7 @@ void MainView::destroyModelBuffers() {
   glDeleteBuffers(1, &meshPositionVBO);
   glDeleteBuffers(1, &meshNormalVBO);
   glDeleteBuffers(1, &meshTexCoordVBO);
+  glDeleteBuffers(1, &meshIdVBO);
   glDeleteVertexArrays(1, &meshVAO);
 }
 

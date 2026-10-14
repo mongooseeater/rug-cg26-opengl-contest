@@ -14,6 +14,8 @@
 #include "model.h"
 #include "shadingmode.h"
 
+#define MAX_MESH_COUNT 8
+
 /**
  * @brief The MainView class is resonsible for the actual content of the main
  * window.
@@ -51,7 +53,7 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
  private:
   void createShaderProgram();
-  void loadMesh(const QString &filename);
+  void loadMeshes(const QVector<QString> &filenames);
   void destroyModelBuffers();
   void updateProjectionTransform();
   void updateModelTransforms();
@@ -67,7 +69,7 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
   // Mesh values
   GLuint meshVAO;
-  GLuint meshPositionVBO, meshNormalVBO, meshTexCoordVBO;
+  GLuint meshPositionVBO, meshNormalVBO, meshTexCoordVBO, meshIdVBO;
   GLuint meshSize;
   QMatrix4x4 meshTransform;
 
