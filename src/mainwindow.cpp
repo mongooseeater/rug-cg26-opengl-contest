@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 
-#include "shadingmode.h"
 #include "ui_mainwindow.h"
 
 /**

@@ -333,10 +333,6 @@ void MainView::setScale(float newScale) {
   updateModelTransforms();
 }
 
-void MainView::setShadingMode(ShadingMode shading) {
-  qDebug() << "Ignoring shading mode";
-}
-
 /**
  * @brief MainView::onMessageLogged OpenGL logging function, do not change.
  *

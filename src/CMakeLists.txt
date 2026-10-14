@@ -24,7 +24,6 @@ qt_add_executable(OpenGL_Contest WIN32 MACOSX_BUNDLE
     mainwindow.cpp mainwindow.h
     mainview.cpp mainview.h
     userinput.cpp
-    shadingmode.h
     model.cpp model.h
     utility.cpp
     vertex.h

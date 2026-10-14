@@ -12,7 +12,6 @@
 #include <QVector3D>
 
 #include "model.h"
-#include "shadingmode.h"
 
 #define MAX_MESH_COUNT 8
 
@@ -30,7 +29,6 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
   // Functions for widget input events
   void setRotation(int rotateX, int rotateY, int rotateZ);
   void setScale(float scale);
-  void setShadingMode(ShadingMode shading);
 
  protected:
   void initializeGL() override;
