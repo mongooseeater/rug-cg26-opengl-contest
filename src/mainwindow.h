@@ -29,10 +29,6 @@ class MainWindow : public QMainWindow {
 
   void on_ResetScaleButton_clicked(bool checked);
   void on_ScaleSlider_valueChanged(int value);
-
-  void on_PhongButton_toggled(bool checked);
-  void on_NormalButton_toggled(bool checked);
-  void on_GouraudButton_toggled(bool checked);
 };
 
 #endif  // MAINWINDOW_H

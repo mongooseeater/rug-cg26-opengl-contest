@@ -81,42 +81,6 @@ void MainWindow::on_ScaleSlider_valueChanged(int value) {
 }
 
 /**
- * @brief MainWindow::on_PhongButton_toggled Changes the shading mode to Phong
- * shading.
- * @param checked Unused.
- */
-void MainWindow::on_PhongButton_toggled(bool checked) {
-  if (checked) {
-    ui->mainView->setShadingMode(ShadingMode::PHONG);
-    ui->mainView->update();
-  }
-}
-
-/**
- * @brief MainWindow::on_NormalButton_toggled Changes the shading mode to Normal
- * shading.
- * @param checked Unused.
- */
-void MainWindow::on_NormalButton_toggled(bool checked) {
-  if (checked) {
-    ui->mainView->setShadingMode(ShadingMode::NORMAL);
-    ui->mainView->update();
-  }
-}
-
-/**
- * @brief MainWindow::on_GouraudButton_toggled Changes the shading mode to
- * Gouraud shading.
- * @param checked Unused.
- */
-void MainWindow::on_GouraudButton_toggled(bool checked) {
-  if (checked) {
-    ui->mainView->setShadingMode(ShadingMode::GOURAUD);
-    ui->mainView->update();
-  }
-}
-
-/**
  * @brief MainWindow::renderToFile Used to render the frame buffer to the file.
  * DO NOT REMOVE OR MODIFY!
  */

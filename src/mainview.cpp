@@ -77,20 +77,11 @@ void MainView::initializeGL() {
  * vertex and fragment shader.
  */
 void MainView::createShaderProgram() {
-  // Create shader programs:
-  // normal
-  shaderPrograms[ShadingMode::NORMAL].addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vertshader_normal.glsl");
-  shaderPrograms[ShadingMode::NORMAL].addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fragshader_normal.glsl");
-  // gouraud
-  shaderPrograms[ShadingMode::GOURAUD].addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vertshader_gouraud.glsl");
-  shaderPrograms[ShadingMode::GOURAUD].addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fragshader_gouraud.glsl");
-  // phong
-  shaderPrograms[ShadingMode::PHONG].addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vertshader_phong.glsl");
-  shaderPrograms[ShadingMode::PHONG].addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fragshader_phong.glsl");
-  // link all three
-  shaderPrograms[ShadingMode::NORMAL].link();
-  shaderPrograms[ShadingMode::GOURAUD].link();
-  shaderPrograms[ShadingMode::PHONG].link();
+  // add vert+frag shaders
+  shader.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vert.glsl");
+  shader.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/frag.glsl");
+  // link shader program
+  shader.link();
 }
 
 /**
@@ -190,7 +181,6 @@ void MainView::paintGL() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   // select shader based on shading mode setting
-  auto &shader = shaderPrograms[currentShadingMode];
   shader.bind();
 
   // Update the uniform values. Note that it is better to only do this when the
@@ -291,8 +281,7 @@ void MainView::setScale(float newScale) {
 }
 
 void MainView::setShadingMode(ShadingMode shading) {
-  qDebug() << "Changed shading to" << shading;
-  currentShadingMode = shading;
+  qDebug() << "Ignoring shading mode";
 }
 
 /**

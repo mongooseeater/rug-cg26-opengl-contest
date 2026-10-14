@@ -4,11 +4,7 @@
         <file>textures/cat_norm.png</file>
         <file>textures/cat_spec.png</file>
         <file>models/cat.obj</file>
-        <file>shaders/fragshader_gouraud.glsl</file>
-        <file>shaders/fragshader_normal.glsl</file>
-        <file>shaders/fragshader_phong.glsl</file>
-        <file>shaders/vertshader_gouraud.glsl</file>
-        <file>shaders/vertshader_normal.glsl</file>
-        <file>shaders/vertshader_phong.glsl</file>
+        <file>shaders/frag.glsl</file>
+        <file>shaders/vert.glsl</file>
     </qresource>
 </RCC>
