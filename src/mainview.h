@@ -71,13 +71,14 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
   GLuint meshVAO;
   GLuint meshPositionVBO, meshNormalVBO, meshTexCoordVBO, meshIdVBO;
   GLuint meshSize;
-  QMatrix4x4 meshTransform;
+  QMatrix4x4 meshTransforms[MAX_MESH_COUNT];
+  int meshCount;
 
   // Transforms
-  float scale = 1.0F;
-  QVector3D rotation;
+  float scales[MAX_MESH_COUNT];
+  QVector3D rotations[MAX_MESH_COUNT];
   QMatrix4x4 projectionTransform;
-  QMatrix3x3 normalTransform;
+  QMatrix3x3 normalTransforms[MAX_MESH_COUNT];
 };
 
 #endif  // MAINVIEW_H

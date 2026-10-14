@@ -12,6 +12,11 @@ MainView::MainView(QWidget *parent) : QOpenGLWidget(parent) {
   qDebug() << "MainView constructor";
 
   connect(&timer, SIGNAL(timeout()), this, SLOT(update()));
+
+  for (int i = 0; i < MAX_MESH_COUNT; i++){
+    rotations[i] = QVector3D(0.0, 0.0, 0.0);
+    scales[i] = 1.0F;
+  }
 }
 
 /**
@@ -65,7 +70,7 @@ void MainView::initializeGL() {
   glClearColor(0.37f, 0.42f, 0.45f, 0.0f);
 
   createShaderProgram();
-  loadMeshes(QVector<QString>(":/models/cat.obj"));
+  loadMeshes(QVector<QString>({":/models/cat.obj", ":/models/cat.obj"}));
 
   // Initialize transformations
   updateProjectionTransform();
@@ -89,19 +94,26 @@ void MainView::createShaderProgram() {
  * @param filename Filenames of the meshes to be loaded. They will be assigned sequential mesh IDs starting from 0.
  */
 void MainView::loadMeshes(const QVector<QString> &filenames) {
+  qDebug() << ":: Scene load";
   QVector<Model> models;
-  int modelCount = filenames.size();
-  models.reserve(modelCount);
-  for (int i = 0; i < modelCount; i++) models.append(Model(filenames[i]));
+  meshCount = filenames.size();
+  qDebug() << ":: (Sub)mesh count:" << meshCount;
+  if ((meshCount < 0) || (meshCount > MAX_MESH_COUNT)) {
+    qDebug() << "ERROR: Unsupported/invalid mesh count!";
+    throw 1;
+  }
+  models.reserve(meshCount);
+  for (int i = 0; i < meshCount; i++) models.append(Model(filenames[i]));
 
   // find total size of "supermesh" obtained by combining model meshes
   meshSize = 0;
   for (auto m : models) meshSize += m.getCoords().size();
-  qDebug() << "Total supermesh size:" << meshSize;
+  qDebug() << ":: Total supermesh size:" << meshSize;
 
-  QVector<QVector3D> meshCoords; // model.getCoords();
-  QVector<QVector3D> meshNormals; // model.getNormals();
-  QVector<QVector2D> meshTexCoords; // model.getTextureCoords();
+  // reserve buffers for soon-to-be VBOs
+  QVector<QVector3D> meshCoords;
+  QVector<QVector3D> meshNormals;
+  QVector<QVector2D> meshTexCoords;
   QVector<int> meshIds;
   meshCoords.reserve(meshSize);
   meshNormals.reserve(meshSize);
@@ -109,10 +121,11 @@ void MainView::loadMeshes(const QVector<QString> &filenames) {
   meshIds.reserve(meshSize);
 
   // combine individual mesh data into one "supermesh"
-  for (int i = 0; i < modelCount; i++) {
+  for (int i = 0; i < meshCount; i++) {
     meshCoords.append(models[i].getCoords());
     meshNormals.append(models[i].getNormals());
     meshTexCoords.append(models[i].getTextureCoords());
+    // mesh ids of vertices = id of this mesh
     auto size = models[i].getCoords().size();
     for (int x = 0; x < size; x++) meshIds.append(i);
   }
@@ -129,8 +142,10 @@ void MainView::loadMeshes(const QVector<QString> &filenames) {
 
   // vertex coordinates -> copy into position VBO
   glBindBuffer(GL_ARRAY_BUFFER, meshPositionVBO);
-  glBufferData(GL_ARRAY_BUFFER, meshCoords.size() * sizeof(QVector3D),
-               meshCoords.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER,
+               meshCoords.size() * sizeof(QVector3D),
+               meshCoords.data(),
+               GL_STATIC_DRAW);
 
   // vertex coordinates to location 0
   // Note: glVertexAttribPointer implicitly reference the VBO currently bound to GL_ARRAY_BUFFER
@@ -141,7 +156,7 @@ void MainView::loadMeshes(const QVector<QString> &filenames) {
   // normals -> copy into normal VBO
   glBindBuffer(GL_ARRAY_BUFFER, meshNormalVBO);
   glBufferData(GL_ARRAY_BUFFER,
-               meshSize * sizeof(QVector3D),
+               meshNormals.size() * sizeof(QVector3D),
                meshNormals.data(),
                GL_STATIC_DRAW);
 
@@ -153,7 +168,7 @@ void MainView::loadMeshes(const QVector<QString> &filenames) {
   // UV data (texture coordinates) -> texture coordinates VBO
   glBindBuffer(GL_ARRAY_BUFFER, meshTexCoordVBO);
   glBufferData(GL_ARRAY_BUFFER,
-                meshSize * sizeof(QVector2D),
+                meshTexCoords.size() * sizeof(QVector2D),
                 meshTexCoords.data(),
                 GL_STATIC_DRAW);
 
@@ -165,12 +180,13 @@ void MainView::loadMeshes(const QVector<QString> &filenames) {
   // mesh ids -> copy into meshID VBO
   glBindBuffer(GL_ARRAY_BUFFER, meshIdVBO);
   glBufferData(GL_ARRAY_BUFFER,
-               meshSize * sizeof(int),
+               meshIds.size() * sizeof(int),
                meshIds.data(),
                GL_STATIC_DRAW);
 
   // mesh ids to location 3
-  glVertexAttribPointer(3, 1, GL_INT, GL_FALSE, sizeof(int),
+  // IPointer -> "is integer, treat as integer"
+  glVertexAttribIPointer(3, 1, GL_INT, sizeof(int),
                         reinterpret_cast<GLvoid *>(0));
   glEnableVertexAttribArray(3);
 
@@ -219,9 +235,9 @@ void MainView::paintGL() {
   // Update the uniform values. Note that it is better to only do this when the
   // matrices change, but for the sake of simplicity this was not done.
 
-  shader.setUniformValue("modelViewTransform", meshTransform);
+  shader.setUniformValueArray("modelViewTransforms", meshTransforms, MAX_MESH_COUNT);
   shader.setUniformValue("projectionTransform", projectionTransform);
-  shader.setUniformValue("normalTransform", normalTransform);
+  shader.setUniformValueArray("normalTransforms", normalTransforms, MAX_MESH_COUNT);
 
   // texture
   shader.setUniformValue("texSampler", 0); // = sample current "texture 0"
@@ -273,11 +289,14 @@ void MainView::updateProjectionTransform() {
  * the mesh to reflect the current rotation and scale values.
  */
 void MainView::updateModelTransforms() {
-  meshTransform.setToIdentity();
-  meshTransform.translate(0.0F, 0.0F, -10.0F);
-  meshTransform.rotate(QQuaternion::fromEulerAngles(rotation));
-  meshTransform.scale(scale);
-  normalTransform = meshTransform.normalMatrix();
+  for (int i = 0; i < meshCount; i++) {
+    meshTransforms[i].setToIdentity();
+    meshTransforms[i].translate(0.0F, 0.0F, -10.0F);
+    meshTransforms[i].rotate(QQuaternion::fromEulerAngles(rotations[i]));
+    meshTransforms[i].scale(scales[i]);
+    normalTransforms[i] = meshTransforms[i].normalMatrix();
+  }
+  
   update();
 }
 
@@ -299,7 +318,7 @@ void MainView::destroyModelBuffers() {
  * @param rotateZ Number of degrees to rotate around the z axis.
  */
 void MainView::setRotation(int rotateX, int rotateY, int rotateZ) {
-  rotation = {static_cast<float>(rotateX), static_cast<float>(rotateY),
+  rotations[0] = {static_cast<float>(rotateX), static_cast<float>(rotateY),
               static_cast<float>(rotateZ)};
   updateModelTransforms();
 }
@@ -310,7 +329,7 @@ void MainView::setRotation(int rotateX, int rotateY, int rotateZ) {
  * mesh to its original size.
  */
 void MainView::setScale(float newScale) {
-  scale = newScale;
+  scales[0] = newScale;
   updateModelTransforms();
 }
 
