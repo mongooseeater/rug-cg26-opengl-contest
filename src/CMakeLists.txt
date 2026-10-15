@@ -28,6 +28,7 @@ qt_add_executable(OpenGL_Contest WIN32 MACOSX_BUNDLE
     utility.cpp
     vertex.h
     main.cpp
+    animation.cpp animation.h keyframe.h
 )
 
 target_include_directories(OpenGL_Contest PRIVATE ${CMAKE_SOURCE_DIR})

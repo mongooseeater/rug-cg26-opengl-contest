@@ -12,6 +12,7 @@
 #include <QVector3D>
 
 #include "model.h"
+#include "animation.h"
 
 #define MAX_MESH_COUNT 8
 
@@ -77,6 +78,9 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
   QVector3D rotations[MAX_MESH_COUNT];
   QMatrix4x4 projectionTransform;
   QMatrix3x3 normalTransforms[MAX_MESH_COUNT];
+
+  // animation
+  Animation animation;
 };
 
 #endif  // MAINVIEW_H

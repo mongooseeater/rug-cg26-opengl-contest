@@ -1,0 +1,21 @@
+#ifndef ANIMATION_H
+#define ANIMATION_H
+
+#include "keyframe.h"
+#include <QVector>
+#include <QString>
+
+class Animation {
+public:
+  Animation(const QString &filename);
+  Keyframe getInterpolatedFrame(const int meshId, const int time);
+  Animation() = default;
+  QVector<QString> getMeshFilenames();
+  float getFrameTime(); // = 1.0/frameRate
+private:
+  std::vector<Keyframe> *sequences;
+  QVector<QString> meshNames;
+  int frameRate;
+};
+
+#endif // ANIMATION_H

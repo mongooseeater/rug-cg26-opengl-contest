@@ -6,5 +6,6 @@
         <file>models/cat.obj</file>
         <file>shaders/frag.glsl</file>
         <file>shaders/vert.glsl</file>
+        <file>animations/debug.anim</file>
     </qresource>
 </RCC>

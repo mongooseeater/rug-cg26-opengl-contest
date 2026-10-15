@@ -70,7 +70,10 @@ void MainView::initializeGL() {
   glClearColor(0.37f, 0.42f, 0.45f, 0.0f);
 
   createShaderProgram();
-  loadMeshes(QVector<QString>({":/models/cat.obj", ":/models/cat.obj"}));
+
+  // load animations
+  animation = Animation(":/animations/debug.anim");
+  loadMeshes(animation.getMeshFilenames());
 
   // Initialize transformations
   updateProjectionTransform();
