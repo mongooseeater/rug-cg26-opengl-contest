@@ -236,11 +236,12 @@ void MainView::loadMeshes(const QVector<QString> &filenames) {
 
 void MainView::animateFrame() {
   // do nothing until the next frame is reached
-  double deltaTime = (float)animationTimer.elapsed() / 1000.0F;
+  double deltaTime = (double)animationTimer.elapsed() / 1000.0;
   if (deltaTime < animation.getFrameTime()) return;
   // if a new frame is due:
   animationTimer.restart();
-  currentFrame = (currentFrame+1) % animation.getLength(); // i.e. loop after seq end
+  int framesElapsed = (int)(deltaTime / animation.getFrameTime());
+  currentFrame = (currentFrame+framesElapsed) % animation.getLength(); // i.e. loop animation after last frame
   updateModelTransforms();
 }
 

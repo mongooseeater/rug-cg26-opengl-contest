@@ -11,7 +11,7 @@ public:
   Keyframe getInterpolatedFrame(const int meshId, const int time);
   Animation() = default;
   QVector<QString> getMeshFilenames();
-  float getFrameTime(); // = 1.0/frameRate
+  double getFrameTime(); // = 1.0/frameRate
   int getLength();
 private:
   std::vector<Keyframe> *sequences;

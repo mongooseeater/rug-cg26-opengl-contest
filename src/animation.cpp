@@ -134,6 +134,7 @@ Animation::Animation(const QString &filename)
 
     file.close();
     qDebug() << "Processed" << lineNum << "lines";
+    qDebug() << "Animation length:" << length << "frames @" << frameRate << "FPS";
   }
 }
 
@@ -187,9 +188,12 @@ QVector<QString> Animation::getMeshFilenames()
   return meshNames;
 }
 
-float Animation::getFrameTime()
+double Animation::getFrameTime()
 {
-  return 1.0f / (float)frameRate;
+  // full disclosure: I *don't understand* why just taking the inverse ends up
+  // being consistently *exactly* 25% slower when animating,
+  // but scaling it down accordingly fixes this issue.
+  return (1.0 / (double)frameRate) * 0.8;
 }
 
 int Animation::getLength()
