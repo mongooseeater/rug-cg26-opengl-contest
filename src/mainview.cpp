@@ -11,7 +11,13 @@
 MainView::MainView(QWidget *parent) : QOpenGLWidget(parent) {
   qDebug() << "MainView constructor";
 
+  // start real-frame timer
   connect(&timer, SIGNAL(timeout()), this, SLOT(update()));
+  timer.start(REAL_FRAME_TIME_MS);
+
+  // start animation timer
+  // (TODO: ideally this should be controlled via a pause/play button)
+  animationTimer.start();
 
   for (int i = 0; i < MAX_MESH_COUNT; i++){
     rotations[i] = QVector3D(0.0, 0.0, 0.0);
@@ -78,6 +84,10 @@ void MainView::initializeGL() {
   // Initialize transformations
   updateProjectionTransform();
   updateModelTransforms();
+
+  // start animation timer
+  // (TODO: ideally this should be controlled via a pause/play button)
+  animationTimer.start();
 }
 
 /**
@@ -222,6 +232,18 @@ void MainView::loadMeshes(const QVector<QString> &filenames) {
                 GL_UNSIGNED_BYTE, qVectorTexture.data()); // = texture data unsigned bytes, from this array
 }
 
+// --- Animation
+
+void MainView::animateFrame() {
+  // do nothing until the next frame is reached
+  double deltaTime = (float)animationTimer.elapsed() / 1000.0F;
+  if (deltaTime < animation.getFrameTime()) return;
+  // if a new frame is due:
+  animationTimer.restart();
+  currentFrame = (currentFrame+1) % animation.getLength(); // i.e. loop after seq end
+  updateModelTransforms();
+}
+
 // --- OpenGL drawing
 
 /**
@@ -229,6 +251,8 @@ void MainView::loadMeshes(const QVector<QString> &filenames) {
  *
  */
 void MainView::paintGL() {
+  animateFrame();
+
   // Clear the screen before rendering
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

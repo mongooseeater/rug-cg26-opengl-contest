@@ -100,8 +100,9 @@ Animation::Animation(const QString &filename)
             qDebug() << "Parsed" << sequences[currentMeshSeq].size() << "keyframe(s) for seq" << currentMeshSeq;
 
             // animation length = length of longest sequence
+            // (we assume last frame is identical to first; this is a hack, but it makes loops nicer to write.)
             int seqLength = (sequences[currentMeshSeq].size() == 0) ? 0
-              : (sequences[currentMeshSeq].back().frame+1);
+              : (sequences[currentMeshSeq].back().frame);
             if (seqLength > length) length = seqLength;
             currentMeshSeq++;
           }

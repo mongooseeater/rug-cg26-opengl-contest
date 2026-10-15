@@ -9,12 +9,17 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLWidget>
 #include <QTimer>
+#include <QElapsedTimer>
 #include <QVector3D>
 
 #include "model.h"
 #include "animation.h"
 
 #define MAX_MESH_COUNT 8
+// "real" frametime for the underlying animation system in milliseconds.
+// this is the interval at which paintGL() ergo animateFrame() will be run;
+// this has to be small enough to allow for flexible framerates for animations.
+#define REAL_FRAME_TIME_MS 10
 
 /**
  * @brief The MainView class is resonsible for the actual content of the main
@@ -59,6 +64,8 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
   void updateModelTransforms();
   QVector<quint8> imageToBytes(const QImage &image);
 
+  void animateFrame();
+
   QOpenGLDebugLogger debugLogger;
   QTimer timer;  // timer used for animation
 
@@ -83,6 +90,7 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
   // animation
   Animation animation;
   int currentFrame;
+  QElapsedTimer animationTimer;
 };
 
 #endif  // MAINVIEW_H
