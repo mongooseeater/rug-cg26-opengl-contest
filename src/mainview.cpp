@@ -320,7 +320,12 @@ void MainView::updateModelTransforms() {
   for (int i = 0; i < meshCount; i++) {
     Keyframe kf = animation.getInterpolatedFrame(i, currentFrame);
     meshTransforms[i].setToIdentity();
+    // apply global transform
     meshTransforms[i].translate(0.0F, 0.0F, -10.0F);
+    meshTransforms[i].rotate(QQuaternion::fromEulerAngles(globalRotation));
+    meshTransforms[i].scale(globalScale);
+
+    // apply keyframe transform
     meshTransforms[i].translate(kf.position);
     meshTransforms[i].rotate(QQuaternion::fromEulerAngles(kf.rotation));
     meshTransforms[i].scale(kf.scale);
@@ -348,7 +353,7 @@ void MainView::destroyModelBuffers() {
  * @param rotateZ Number of degrees to rotate around the z axis.
  */
 void MainView::setRotation(int rotateX, int rotateY, int rotateZ) {
-  rotations[0] = {static_cast<float>(rotateX), static_cast<float>(rotateY),
+  globalRotation = {static_cast<float>(rotateX), static_cast<float>(rotateY),
               static_cast<float>(rotateZ)};
   updateModelTransforms();
 }
@@ -359,7 +364,7 @@ void MainView::setRotation(int rotateX, int rotateY, int rotateZ) {
  * mesh to its original size.
  */
 void MainView::setScale(float newScale) {
-  scales[0] = newScale;
+  globalScale = newScale;
   updateModelTransforms();
 }
 

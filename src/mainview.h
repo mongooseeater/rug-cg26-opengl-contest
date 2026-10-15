@@ -91,6 +91,10 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
   Animation animation;
   int currentFrame;
   QElapsedTimer animationTimer;
+
+  // global transform ("over entire scene")
+  float globalScale = 1.0F;
+  QVector3D globalRotation;
 };
 
 #endif  // MAINVIEW_H
