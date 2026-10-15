@@ -293,10 +293,12 @@ void MainView::updateProjectionTransform() {
  */
 void MainView::updateModelTransforms() {
   for (int i = 0; i < meshCount; i++) {
+    Keyframe kf = animation.getInterpolatedFrame(i, currentFrame);
     meshTransforms[i].setToIdentity();
     meshTransforms[i].translate(0.0F, 0.0F, -10.0F);
-    meshTransforms[i].rotate(QQuaternion::fromEulerAngles(rotations[i]));
-    meshTransforms[i].scale(scales[i]);
+    meshTransforms[i].translate(kf.position);
+    meshTransforms[i].rotate(QQuaternion::fromEulerAngles(kf.rotation));
+    meshTransforms[i].scale(kf.scale);
     normalTransforms[i] = meshTransforms[i].normalMatrix();
   }
   
@@ -333,6 +335,13 @@ void MainView::setRotation(int rotateX, int rotateY, int rotateZ) {
  */
 void MainView::setScale(float newScale) {
   scales[0] = newScale;
+  updateModelTransforms();
+}
+
+// debug mostly
+void MainView::setCurrentFrameNum(int newFrameNum)
+{
+  currentFrame = newFrameNum;
   updateModelTransforms();
 }
 

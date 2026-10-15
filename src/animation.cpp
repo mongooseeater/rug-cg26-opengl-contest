@@ -51,6 +51,7 @@ Animation::Animation(const QString &filename)
     QStringList args;
     int lineNum = 0;
     int currentMeshSeq = 0;
+    length = 0;
 
     while (!in.atEnd()) {
       line = in.readLine();
@@ -97,6 +98,11 @@ Animation::Animation(const QString &filename)
             meshesRead = true;
           } else {
             qDebug() << "Parsed" << sequences[currentMeshSeq].size() << "keyframe(s) for seq" << currentMeshSeq;
+
+            // animation length = length of longest sequence
+            int seqLength = (sequences[currentMeshSeq].size() == 0) ? 0
+              : (sequences[currentMeshSeq].back().frame+1);
+            if (seqLength > length) length = seqLength;
             currentMeshSeq++;
           }
           continue;
@@ -128,27 +134,63 @@ Animation::Animation(const QString &filename)
   }
 }
 
-// TODO
-Keyframe Animation::getInterpolatedFrame(const int meshId, const int time)
+/**
+ * @brief Gives as a keyframe
+ * the interpolated transform of a given mesh at a given time.
+ */
+Keyframe Animation::getInterpolatedFrame(const int meshId, const int frameNum)
 {
   // get sequence for mesh id
-  std::vector<Keyframe> meshSequences = sequences[meshId];
-  // find "previous (<=)" and "next (<=)" keyframe relative to current time
-  // Keyframe previous, next;
+  std::vector<Keyframe> meshSeq = sequences[meshId];
 
-  // find interpolation factor (linearly)
-  // float factor; // [0;1]
+  // find "previous (<=)" and "next (<)" keyframe relative to current time
+  // (this is not very efficient, using a linear search each time with O(n) on #keyframes)
+  Keyframe previous = meshSeq.at(0);
+  std::optional<Keyframe> nextFound;
+  for (int i = 1; i < meshSeq.size(); i++) {
+    auto kf = meshSeq.at(i);
+    if (kf.frame < frameNum) previous = kf;
+    else if (kf.frame == frameNum) {
+      // exact hit!
+      previous = kf; break;
+    } else {
+      // "interval" found
+      nextFound = kf; break;
+    }
+  }
 
-  // interpolate keyframes according to factor
-  // return Keyframe();
+  // return "previous" directly if either:
+  // a) it matches frame num exactly
+  // b) frame number exceeds length of animation (i.e. no "next kf" found)
+  if (previous.frame == frameNum || !nextFound.has_value()) return previous;
+
+  // else, interpolate
+  auto next = nextFound.value();
+  float delta = (float)(frameNum - previous.frame) / (float)(next.frame - previous.frame);
+
+  // linear interpolation (todo: other interpolation functions?)
+  float factor = delta;
+
+  Keyframe interpolated(
+    frameNum,
+    (1.0-factor)*previous.position + factor*next.position,
+    (1.0-factor)*previous.rotation + factor*next.rotation,
+    (1.0-factor)*previous.scale + factor*next.scale
+  );
+  return interpolated;
 }
 
 QVector<QString> Animation::getMeshFilenames()
 {
-    return meshNames;
+  return meshNames;
 }
 
 float Animation::getFrameTime()
 {
-    return 1.0f / (float)frameRate;
+  return 1.0f / (float)frameRate;
+}
+
+int Animation::getLength()
+{
+  return length;
 }

@@ -12,10 +12,12 @@ public:
   Animation() = default;
   QVector<QString> getMeshFilenames();
   float getFrameTime(); // = 1.0/frameRate
+  int getLength();
 private:
   std::vector<Keyframe> *sequences;
   QVector<QString> meshNames;
   int frameRate;
+  int length;
 };
 
 #endif // ANIMATION_H

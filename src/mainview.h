@@ -30,6 +30,7 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
   // Functions for widget input events
   void setRotation(int rotateX, int rotateY, int rotateZ);
   void setScale(float scale);
+  void setCurrentFrameNum(int newFrameNum);
 
  protected:
   void initializeGL() override;
@@ -81,6 +82,7 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
   // animation
   Animation animation;
+  int currentFrame;
 };
 
 #endif  // MAINVIEW_H

@@ -40,6 +40,43 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
+        <layout class="QVBoxLayout" name="animationBox">
+         <item>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="title">
+            <string>Animation</string>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+           <widget class="QSpinBox" name="frameNum">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>50</y>
+              <width>44</width>
+              <height>29</height>
+             </rect>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>30</y>
+              <width>63</width>
+              <height>20</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Frame #</string>
+            </property>
+           </widget>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
         <widget class="QGroupBox" name="rotationBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -170,7 +207,7 @@
              <number>100</number>
             </property>
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Orientation::Horizontal</enum>
             </property>
             <property name="invertedAppearance">
              <bool>false</bool>
@@ -179,7 +216,7 @@
              <bool>false</bool>
             </property>
             <property name="tickPosition">
-             <enum>QSlider::NoTicks</enum>
+             <enum>QSlider::TickPosition::NoTicks</enum>
             </property>
            </widget>
           </item>

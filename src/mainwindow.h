@@ -29,6 +29,7 @@ class MainWindow : public QMainWindow {
 
   void on_ResetScaleButton_clicked(bool checked);
   void on_ScaleSlider_valueChanged(int value);
+  void on_frameNum_valueChanged(int value);
 };
 
 #endif  // MAINWINDOW_H

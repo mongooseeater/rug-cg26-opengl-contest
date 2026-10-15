@@ -88,3 +88,9 @@ void MainWindow::renderToFile() {
   image.save("framebuffer_contents.png", "PNG",
              100);  // Save using the best quality
 }
+
+void MainWindow::on_frameNum_valueChanged(int value)
+{
+  ui->mainView->setCurrentFrameNum(value);
+}
+
