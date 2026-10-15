@@ -18,6 +18,7 @@ private:
   QVector<QString> meshNames;
   int frameRate;
   int length;
+  float interpolate(InterpolationMode interp, float delta);
 };
 
 #endif // ANIMATION_H

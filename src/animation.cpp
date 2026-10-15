@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QTextStream>
+#include <QEasingCurve>
 
 #include "mainview.h"
 
@@ -31,7 +32,7 @@
     ---------
     empty lines are ignored (skipped)
     keyframes are in the format:
-    TIME POSX POSY POSZ ROTX ROTY ROTZ SCALEX SCALEY SCALEZ
+    TIME INTERP_MODE POSX POSY POSZ ROTX ROTY ROTZ SCALEX SCALEY SCALEZ
 */
 Animation::Animation(const QString &filename)
 {
@@ -122,9 +123,10 @@ Animation::Animation(const QString &filename)
         */
         Keyframe keyframe(
           args[0].toInt(),
-          QVector3D(args[1].toFloat(), args[2].toFloat(), args[3].toFloat()),
-          QVector3D(args[4].toFloat(), args[5].toFloat(), args[6].toFloat()),
-          QVector3D(args[7].toFloat(), args[8].toFloat(), args[9].toFloat())
+          (InterpolationMode)args[1].toInt(),
+          QVector3D(args[2].toFloat(), args[3].toFloat(), args[4].toFloat()),
+          QVector3D(args[5].toFloat(), args[6].toFloat(), args[7].toFloat()),
+          QVector3D(args[8].toFloat(), args[9].toFloat(), args[10].toFloat())
         );
         sequences[currentMeshSeq].push_back(keyframe);
       }
@@ -168,12 +170,11 @@ Keyframe Animation::getInterpolatedFrame(const int meshId, const int frameNum)
   // else, interpolate
   auto next = nextFound.value();
   float delta = (float)(frameNum - previous.frame) / (float)(next.frame - previous.frame);
-
-  // linear interpolation (todo: other interpolation functions?)
-  float factor = delta;
+  float factor = interpolate(previous.interp, delta);
 
   Keyframe interpolated(
     frameNum,
+    None,
     (1.0-factor)*previous.position + factor*next.position,
     (1.0-factor)*previous.rotation + factor*next.rotation,
     (1.0-factor)*previous.scale + factor*next.scale
@@ -194,4 +195,27 @@ float Animation::getFrameTime()
 int Animation::getLength()
 {
   return length;
+}
+
+float Animation::interpolate(InterpolationMode interp, float delta)
+{
+  // "constant interpolation" = really just none, i.e. return previous keyframe.
+  if (interp == Constant) return 0.0;
+
+  QEasingCurve easing;
+  switch (interp) {
+    case Linear:
+      easing = QEasingCurve(QEasingCurve::Linear);
+      break;
+    case Sine:
+      easing = QEasingCurve(QEasingCurve::InOutSine);
+      break;
+    case Quad:
+      easing = QEasingCurve(QEasingCurve::InOutQuad);
+      break;
+    default:
+      qDebug() << "WARNING: Invalid frame interpolation mode:" << (int)interp;
+      return 0.0;
+  }
+  return easing.valueForProgress(delta);
 }
