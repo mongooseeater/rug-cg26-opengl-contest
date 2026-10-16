@@ -37,6 +37,9 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
   void setScale(float scale);
   void setCurrentFrameNum(int newFrameNum);
 
+  void loadAnimation(const QString filename);
+  void togglePlayPause();
+
  protected:
   void initializeGL() override;
   void resizeGL(int newWidth, int newHeight) override;
@@ -89,8 +92,9 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
   // animation
   Animation animation;
-  int currentFrame;
+  int currentFrame = 0;
   QElapsedTimer animationTimer;
+  bool animationPaused = true;
 
   // global transform ("over entire scene")
   float globalScale = 1.0F;

@@ -78,15 +78,13 @@ void MainView::initializeGL() {
   createShaderProgram();
 
   // load animations
-  animation = Animation(":/animations/debug.anim");
-  loadMeshes(animation.getMeshFilenames());
+  loadAnimation(":/animations/debug.anim");
 
   // Initialize transformations
   updateProjectionTransform();
   updateModelTransforms();
 
   // start animation timer
-  // (TODO: ideally this should be controlled via a pause/play button)
   animationTimer.start();
 }
 
@@ -235,14 +233,33 @@ void MainView::loadMeshes(const QVector<QString> &filenames) {
 // --- Animation
 
 void MainView::animateFrame() {
+  if (animationPaused) return;
+
   // do nothing until the next frame is reached
   double deltaTime = (double)animationTimer.elapsed() / 1000.0;
   if (deltaTime < animation.getFrameTime()) return;
+
   // if a new frame is due:
   animationTimer.restart();
   int framesElapsed = (int)(deltaTime / animation.getFrameTime());
   currentFrame = (currentFrame+framesElapsed) % animation.getLength(); // i.e. loop animation after last frame
   updateModelTransforms();
+}
+
+void MainView::loadAnimation(const QString filename)
+{
+  // clear meshes
+  animation = Animation(":/animations/debug.anim");
+  loadMeshes(animation.getMeshFilenames());
+  animationPaused = true;
+  currentFrame = 0;
+}
+
+void MainView::togglePlayPause()
+{
+  animationPaused = !animationPaused;
+  // reset timer to zero (to avoid "jumping" when unpausing/playing)
+  if (!animationPaused) animationTimer.restart();
 }
 
 // --- OpenGL drawing

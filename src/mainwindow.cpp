@@ -2,6 +2,8 @@
 
 #include "ui_mainwindow.h"
 
+#include <QFileDialog>
+
 /**
  * @brief MainWindow::MainWindow Constructs a new main window.
  * @param parent The parent widget.
@@ -94,3 +96,16 @@ void MainWindow::on_frameNum_valueChanged(int value)
   ui->mainView->setCurrentFrameNum(value);
 }
 
+void MainWindow::on_loadAnimButton_clicked(bool checked)
+{
+  // open dialogue box and prompt filename
+  auto filepath = QFileDialog::getOpenFileName(this, "Load Animation...", QDir::currentPath(), "Animation files (*.anim)");
+  if (filepath == nullptr) return; // user cancelled dialogue
+  // todo: "fix" loadAnimation s. t. vao/vbo initialisation and vbo population are separated
+  //ui->mainView->loadAnimation(filepath);
+}
+
+void MainWindow::on_playPauseButton_clicked(bool checked)
+{
+  ui->mainView->togglePlayPause();
+}
