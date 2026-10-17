@@ -72,6 +72,14 @@ Animation::Animation(const QString &filename)
           qDebug() << "Parsed framerate:" << frameRate;
           continue;
         }
+        if (args[0] == "DIFFUSETEX") {
+          if (args.size() < 2) {
+            qDebug() << "SYNTAX ERROR: line" << lineNum << "- expected diff. texture path";
+          }
+          diffuseTexturePath = args[1];
+          qDebug() << "Parsed diffuse texture path:" << diffuseTexturePath;
+          continue;
+        }
       }
 
       if (!meshesRead && !reading) {
@@ -186,6 +194,11 @@ Keyframe Animation::getInterpolatedFrame(const int meshId, const int frameNum)
 QVector<QString> Animation::getMeshFilenames()
 {
   return meshNames;
+}
+
+QString Animation::getDiffuseTexturePath()
+{
+  return diffuseTexturePath;
 }
 
 double Animation::getFrameTime()

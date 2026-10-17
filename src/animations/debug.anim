@@ -4,6 +4,7 @@ MESHES
 :/models/cat.obj
 :/models/cat.obj
 END
+DIFFUSETEX :/textures/cat_diff.png
 
 FRAMERATE 30
 

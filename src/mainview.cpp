@@ -219,7 +219,7 @@ void MainView::loadMeshes(const QVector<QString> &filenames) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   // upload (diffuse) texture data
-  auto qImageTexture = QImage(":/textures/cat_diff.png");
+  auto qImageTexture = QImage(animation.getDiffuseTexturePath());
   auto qVectorTexture = imageToBytes(qImageTexture);
 
   glTexImage2D(GL_TEXTURE_2D, 0,  // 2D texture, no mipmapping
