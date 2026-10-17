@@ -239,8 +239,23 @@ float Animation::interpolate(InterpolationMode interp, float delta)
     case Sine:
       easing = QEasingCurve(QEasingCurve::InOutSine);
       break;
+    case SineIn:
+      easing = QEasingCurve(QEasingCurve::InSine);
+      break;
+    case SineOut:
+      easing = QEasingCurve(QEasingCurve::OutSine);
+      break;
     case Quad:
       easing = QEasingCurve(QEasingCurve::InOutQuad);
+      break;
+    case QuadIn:
+      easing = QEasingCurve(QEasingCurve::InQuad);
+      break;
+    case QuadOut:
+      easing = QEasingCurve(QEasingCurve::OutQuad);
+      break;
+    case Bounce:
+      easing = QEasingCurve(QEasingCurve::InOutBounce);
       break;
     default:
       qDebug() << "WARNING: Invalid frame interpolation mode:" << (int)interp;
