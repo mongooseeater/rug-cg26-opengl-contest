@@ -146,6 +146,18 @@ Animation::Animation(const QString &filename)
   }
 }
 
+Animation Animation::empty()
+{
+  Animation anim;
+  anim.frameRate = 1;
+  anim.sequences = new std::vector<Keyframe>[MAX_MESH_COUNT];
+  anim.length = 1;
+  for (int i = 0; i < MAX_MESH_COUNT; i++)
+    anim.sequences[i].push_back(Keyframe(0, None, QVector3D(0,0,0),QVector3D(0,0,0), QVector3D(0,0,0)));
+
+  return anim;
+}
+
 /**
  * @brief Gives as a keyframe
  * the interpolated transform of a given mesh at a given time.

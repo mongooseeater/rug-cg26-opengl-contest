@@ -8,6 +8,8 @@
 class Animation {
 public:
   Animation(const QString &filename);
+  static Animation empty();
+
   Keyframe getInterpolatedFrame(const int meshId, const int time);
   Animation() = default;
   QVector<QString> getMeshFilenames();

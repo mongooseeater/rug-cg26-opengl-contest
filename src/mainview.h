@@ -62,6 +62,7 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
  private:
   void createShaderProgram();
   void loadMeshes(const QVector<QString> &filenames);
+  void createModelBuffers();
   void destroyModelBuffers();
   void updateProjectionTransform();
   void updateModelTransforms();
@@ -80,9 +81,9 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
   // Mesh values
   GLuint meshVAO;
   GLuint meshPositionVBO, meshNormalVBO, meshTexCoordVBO, meshIdVBO;
-  GLuint meshSize;
+  GLuint meshSize = 0;
   QMatrix4x4 meshTransforms[MAX_MESH_COUNT];
-  int meshCount;
+  int meshCount = 0;
 
   // Transforms
   float scales[MAX_MESH_COUNT];

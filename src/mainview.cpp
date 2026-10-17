@@ -11,6 +11,8 @@
 MainView::MainView(QWidget *parent) : QOpenGLWidget(parent) {
   qDebug() << "MainView constructor";
 
+  animation = Animation::empty();
+
   // start real-frame timer
   connect(&timer, SIGNAL(timeout()), this, SLOT(update()));
   timer.start(REAL_FRAME_TIME_MS);
@@ -76,9 +78,9 @@ void MainView::initializeGL() {
   glClearColor(0.37f, 0.42f, 0.45f, 0.0f);
 
   createShaderProgram();
+  createModelBuffers();
 
   // load animations
-  loadAnimation(":/animations/debug.anim");
 
   // Initialize transformations
   updateProjectionTransform();
@@ -98,6 +100,20 @@ void MainView::createShaderProgram() {
   shader.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/frag.glsl");
   // link shader program
   shader.link();
+}
+
+void MainView::createModelBuffers() {
+   // Generate VAO
+  glGenVertexArrays(1, &meshVAO);
+
+  // Generate VBOs (one per vertex attribute)
+  glGenBuffers(1, &meshPositionVBO);
+  glGenBuffers(1, &meshNormalVBO);
+  glGenBuffers(1, &meshTexCoordVBO);
+  glGenBuffers(1, &meshIdVBO);
+
+  // Generate texture
+  glGenTextures(1, &meshTexture);
 }
 
 /**
@@ -141,22 +157,15 @@ void MainView::loadMeshes(const QVector<QString> &filenames) {
     for (int x = 0; x < size; x++) meshIds.append(i);
   }
 
-  // Generate VAO
-  glGenVertexArrays(1, &meshVAO);
+  makeCurrent();
   glBindVertexArray(meshVAO);
-
-  // Generate VBOs (one per vertex attribute)
-  glGenBuffers(1, &meshPositionVBO);
-  glGenBuffers(1, &meshNormalVBO);
-  glGenBuffers(1, &meshTexCoordVBO);
-  glGenBuffers(1, &meshIdVBO);
 
   // vertex coordinates -> copy into position VBO
   glBindBuffer(GL_ARRAY_BUFFER, meshPositionVBO);
   glBufferData(GL_ARRAY_BUFFER,
                meshCoords.size() * sizeof(QVector3D),
                meshCoords.data(),
-               GL_STATIC_DRAW);
+               GL_DYNAMIC_DRAW);
 
   // vertex coordinates to location 0
   // Note: glVertexAttribPointer implicitly reference the VBO currently bound to GL_ARRAY_BUFFER
@@ -169,7 +178,7 @@ void MainView::loadMeshes(const QVector<QString> &filenames) {
   glBufferData(GL_ARRAY_BUFFER,
                meshNormals.size() * sizeof(QVector3D),
                meshNormals.data(),
-               GL_STATIC_DRAW);
+               GL_DYNAMIC_DRAW);
 
   // normal values to location 1
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D),
@@ -181,7 +190,7 @@ void MainView::loadMeshes(const QVector<QString> &filenames) {
   glBufferData(GL_ARRAY_BUFFER,
                 meshTexCoords.size() * sizeof(QVector2D),
                 meshTexCoords.data(),
-                GL_STATIC_DRAW);
+                GL_DYNAMIC_DRAW);
 
   // UV/tex coordinates to location 2
   glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(QVector2D),
@@ -193,7 +202,7 @@ void MainView::loadMeshes(const QVector<QString> &filenames) {
   glBufferData(GL_ARRAY_BUFFER,
                meshIds.size() * sizeof(int),
                meshIds.data(),
-               GL_STATIC_DRAW);
+               GL_DYNAMIC_DRAW);
 
   // mesh ids to location 3
   // IPointer -> "is integer, treat as integer"
@@ -205,9 +214,6 @@ void MainView::loadMeshes(const QVector<QString> &filenames) {
   // this from accidentally modifying it.
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
-
-  // Generate texture
-  glGenTextures(1, &meshTexture);
 
   // Set up texture parameters
   glBindTexture(GL_TEXTURE_2D, meshTexture);
@@ -249,10 +255,12 @@ void MainView::animateFrame() {
 void MainView::loadAnimation(const QString filename)
 {
   // clear meshes
-  animation = Animation(":/animations/debug.anim");
+  animation = Animation(filename);
   loadMeshes(animation.getMeshFilenames());
   animationPaused = true;
   currentFrame = 0;
+  updateProjectionTransform();
+  updateModelTransforms();
 }
 
 void MainView::togglePlayPause()
@@ -269,6 +277,7 @@ void MainView::togglePlayPause()
  *
  */
 void MainView::paintGL() {
+  makeCurrent();
   animateFrame();
 
   // Clear the screen before rendering
@@ -302,6 +311,7 @@ void MainView::paintGL() {
   glBindVertexArray(meshVAO);
   glBindTexture(GL_TEXTURE_2D, meshTexture);
   glDrawArrays(GL_TRIANGLES, 0, meshSize);
+  glBindVertexArray(0);
 
   shader.release();
 }
