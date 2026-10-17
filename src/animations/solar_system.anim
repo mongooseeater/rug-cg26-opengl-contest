@@ -1,0 +1,44 @@
+# sample animation: "solar system"
+MESHES
+:/models/planets_sun.obj
+:/models/planets_1.obj
+:/models/planets_2.obj
+:/models/planets_3.obj
+:/models/planets_4.obj
+END
+
+# note: meshes are scaled down to 40%, else you "spawn" inside the camera and it's a bit confusing.
+
+FRAMERATE 28
+DIFFUSETEX :/textures/planets_diff.png
+
+# sequence: sun
+# (object is stationary, so one keyframe is enough)
+SEQ
+0 1 0.0 -5.0 0.0 -0.0 -0.0 0.0 0.4 0.4 0.4
+END
+
+# sequence: planet 1
+# (4680 = 13 x 360, ergo 13 revolutions over 384 frames...)
+SEQ
+0   1 0.0 -5.0 0.0 -0.0 -0.0    0.0    0.4 0.4 0.4
+384 1 0.0 -5.0 0.0 -0.0 -4680.0 0.0    0.4 0.4 0.4
+END
+
+# sequence: planet 2
+SEQ
+0   1 0.0 -5.0 0.0 -0.0 -0.0    0.0    0.4 0.4 0.4
+384 1 0.0 -5.0 0.0 -0.0 -2520.0 0.0    0.4 0.4 0.4
+END
+
+# sequence: planet 3
+SEQ
+0   1 0.0 -5.0 0.0 -0.0 -0.0    0.0    0.4 0.4 0.4
+384 1 0.0 -5.0 0.0 -0.0 -1080.0 0.0    0.4 0.4 0.4
+END
+
+# sequence: planet 4
+SEQ
+0   1 0.0 -5 0.0 -0.0 -0.0 0.0         0.4 0.4 0.4
+384 1 0.0 -5 0.0 -0.0 -360.0 0.0       0.4 0.4 0.4
+END

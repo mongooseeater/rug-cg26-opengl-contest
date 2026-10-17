@@ -6,6 +6,11 @@
         <file>models/cat.obj</file>
         <file>shaders/frag.glsl</file>
         <file>shaders/vert.glsl</file>
-        <file>animations/debug.anim</file>
+        <file>models/planets_1.obj</file>
+        <file>models/planets_2.obj</file>
+        <file>models/planets_3.obj</file>
+        <file>models/planets_4.obj</file>
+        <file>models/planets_sun.obj</file>
+        <file>textures/planets_diff.png</file>
     </qresource>
 </RCC>
