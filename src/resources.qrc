@@ -12,5 +12,17 @@
         <file>models/planets_4.obj</file>
         <file>models/planets_sun.obj</file>
         <file>textures/planets_diff.png</file>
+        <file>models/saucer_beam.obj</file>
+        <file>models/saucer_cow.obj</file>
+        <file>models/saucer_ship.obj</file>
+        <file>textures/testsaucer_diff.png</file>
+        <file>textures/testrabbit_diff.png</file>
+        <file>models/testrabbit_body.obj</file>
+        <file>models/testrabbit_eye_left.obj</file>
+        <file>models/testrabbit_eye_right.obj</file>
+        <file>models/testrabbit_head.obj</file>
+        <file>models/testrabbit_nose.obj</file>
+        <file>models/testplane.obj</file>
+        <file>textures/testplane_diff.png</file>
     </qresource>
 </RCC>
