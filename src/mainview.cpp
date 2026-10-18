@@ -18,7 +18,6 @@ MainView::MainView(QWidget *parent) : QOpenGLWidget(parent) {
   timer.start(REAL_FRAME_TIME_MS);
 
   // start animation timer
-  // (TODO: ideally this should be controlled via a pause/play button)
   animationTimer.start();
 
   for (int i = 0; i < MAX_MESH_COUNT; i++){
@@ -80,14 +79,9 @@ void MainView::initializeGL() {
   createShaderProgram();
   createModelBuffers();
 
-  // load animations
-
   // Initialize transformations
   updateProjectionTransform();
   updateModelTransforms();
-
-  // start animation timer
-  animationTimer.start();
 }
 
 /**
@@ -254,7 +248,8 @@ void MainView::animateFrame() {
 
 void MainView::loadAnimation(const QString filename)
 {
-  // clear meshes
+  // clear sequence data from previous animation
+  animation.dispose();
   animation = Animation(filename);
   loadMeshes(animation.getMeshFilenames());
   animationPaused = true;

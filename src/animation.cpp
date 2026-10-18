@@ -9,40 +9,25 @@
 
 #include "mainview.h"
 
-/*
-    animation file format as follows:
-    -----
-    MESHES
-    <mesh0 filename>
-    <mesh1 filename>
-    ...
-    <meshn filename>
-    END
-    SEQ
-    <mesh0 kf0>
-    <mesh0 kf1>
-    ...
-    <mesh0 kfn>
-    END
-    SEQ
-    <...>
-    END
-
-    # comments start on a pound symbol
-    ---------
-    empty lines are ignored (skipped)
-    keyframes are in the format:
-    TIME INTERP_MODE POSX POSY POSZ ROTX ROTY ROTZ SCALEX SCALEY SCALEZ
-*/
+/**
+ * @brief Animation::Animation Parses animation data from an .anim file
+ * into an Animation object.
+ * @remarks Tries to be helpful with debug messages, but will abort the program
+ * on "unrecoverable" syntax errors.
+ * Also, this function is (partially) the puppeted undead Frankensteinian corpse of the framework's OBJ parser.
+ * @param filename The file path to the .anim file to load.
+ */
 Animation::Animation(const QString &filename)
 {
   bool meshesRead = false;
   bool reading = false;
+  bool textureSet = false;
+  
   meshNames.reserve(MAX_MESH_COUNT);
   sequences = new std::vector<Keyframe>[MAX_MESH_COUNT];
 
-  // default frame rate
-  frameRate = 30;
+  // unless specified otherwise...
+  frameRate = DEFAULT_FRAMERATE;
 
   qDebug() << ":: Loading animation:" << filename;
   QFile file(filename);
@@ -78,6 +63,7 @@ Animation::Animation(const QString &filename)
           }
           diffuseTexturePath = args[1];
           qDebug() << "Parsed diffuse texture path:" << diffuseTexturePath;
+          textureSet = true;
           continue;
         }
       }
@@ -123,12 +109,14 @@ Animation::Animation(const QString &filename)
         qDebug() << "Mesh" << meshNames.size() << "filename:" << args[0];
         meshNames.append(args[0]);
       } else {
-        /*
-        qDebug() << "KF time:" << args[0];
-        qDebug() << "POS XYZ:" << args[1] << args[2] << args[3];
-        qDebug() << "ROT XYZ:" << args[4] << args[5] << args[6];
-        qDebug() << "SCL XYZ:" << args[7] << args[8] << args[9];
-        */
+        // check keyframe is valid
+        if (args.size() != KEYFRAME_ENTRY_COUNT) {
+          qDebug() << "WARNING: line" << lineNum <<
+            "has invalid keyframe with" << args.size() <<
+            "entries! You most likely made a syntax error. Skipping...";
+          // skip this keyframe
+          continue;
+        }
         Keyframe keyframe(
           args[0].toInt(),
           (InterpolationMode)args[1].toInt(),
@@ -139,21 +127,37 @@ Animation::Animation(const QString &filename)
         sequences[currentMeshSeq].push_back(keyframe);
       }
     }
-
+    // file has been processed
+    if (reading) {
+      qDebug() << "SYNTAX ERROR: line" << lineNum << "- expected END before end-of-file";
+      abort();
+    }
     file.close();
     qDebug() << "Processed" << lineNum << "lines";
     qDebug() << "Animation length:" << length << "frames @" << frameRate << "FPS";
+
+    // some "common mistakes" AKA basic sanity checking
+    if (!textureSet) {
+      qDebug() << "WARNING: No diffuse texture set. This is bad.";
+    }
+    if (meshNames.size() != currentMeshSeq) {
+      qDebug() << "WARNING: You have" <<
+        currentMeshSeq << "sequences for" <<
+        meshNames.size() << "meshes. This is bad.";
+    }
   }
 }
 
+/**
+ * Returns an empty animation.
+ */
 Animation Animation::empty()
 {
   Animation anim;
   anim.frameRate = 1;
-  anim.sequences = new std::vector<Keyframe>[MAX_MESH_COUNT];
+  anim.sequences = new std::vector<Keyframe>[1];
   anim.length = 1;
-  for (int i = 0; i < MAX_MESH_COUNT; i++)
-    anim.sequences[i].push_back(Keyframe(0, None, QVector3D(0,0,0),QVector3D(0,0,0), QVector3D(0,0,0)));
+  anim.sequences[0].push_back(Keyframe(0, None, QVector3D(0,0,0),QVector3D(0,0,0), QVector3D(0,0,0)));
 
   return anim;
 }
@@ -226,6 +230,26 @@ int Animation::getLength()
   return length;
 }
 
+/*
+  For observers: yes, I have tried using a C++ destructor.
+  No, it doesn't work, because apparently the animation goes "out of scope"
+  as soon as MainView::loadAnimation() returns, causing a crash.
+*/
+void Animation::dispose()
+{
+  delete[] sequences;
+}
+
+/**
+ * @brief Maps a "delta" (on interval [0, 1], i.e. relative distance in time)
+ * onto a factor by applying a corresponding interpolation function.
+ * This factor is then the actual "blend factor" to use between two keyframes,
+ * given a certain interpolation setting.
+ * @param interp Identifies the interpolation function to use. This is always the interpolation mode
+ * of the PREVIOUS keyframe.
+ * @param delta Value between 0 and 1 (inclusive), corresponding to the relative offset
+ * in time between the "previous" and "next" keyframes. (0=previous, 1=next, e.g. 0.5=exactly halfway)
+ */
 float Animation::interpolate(InterpolationMode interp, float delta)
 {
   // "constant interpolation" = really just none, i.e. return previous keyframe.

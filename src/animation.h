@@ -5,6 +5,9 @@
 #include <QVector>
 #include <QString>
 
+#define DEFAULT_FRAMERATE 30
+#define KEYFRAME_ENTRY_COUNT 11
+
 class Animation {
 public:
   Animation(const QString &filename);
@@ -16,6 +19,7 @@ public:
   QString getDiffuseTexturePath();
   double getFrameTime(); // = 1.0/frameRate
   int getLength();
+  void dispose();
 private:
   std::vector<Keyframe> *sequences;
   QVector<QString> meshNames;
