@@ -1,10 +1,10 @@
+# sample animation: "dogfighting planes"
 MESHES
 :/models/testplane.obj
 :/models/testplane.obj
 END
 
 FRAMERATE 24
-
 DIFFUSETEX :/textures/testplane_diff.png
 
 # plane 1
