@@ -7,13 +7,13 @@ This submission is an extension of the OpenGL "model viewer" framework from the 
 
 ## Sample images
 
-![](https://github.com/mongooseeater/rug-cg26-opengl-contest/raw/master/samplegifs/1cats.gif)
+![](https://github.com/mongooseeater/rug-cg26-opengl-contest/raw/main/samplegifs/1cats.gif)
 
-![](https://github.com/mongooseeater/rug-cg26-opengl-contest/raw/master/samplegifs/2solar.gif)
+![](https://github.com/mongooseeater/rug-cg26-opengl-contest/raw/main/samplegifs/2solar.gif)
 
-![](https://github.com/mongooseeater/rug-cg26-opengl-contest/raw/master/samplegifs/3saucer.gif)
+![](https://github.com/mongooseeater/rug-cg26-opengl-contest/raw/main/samplegifs/3saucer.gif)
 
-![](https://github.com/mongooseeater/rug-cg26-opengl-contest/raw/master/samplegifs/4bunny.gif)
+![](https://github.com/mongooseeater/rug-cg26-opengl-contest/raw/main/samplegifs/4bunny.gif)
 
 (For higher quality, see [here](#sample-animations) for how to view these inside the application.)
 
@@ -47,7 +47,6 @@ Naturally, the project comes bundled with a few sample animations showcasing its
 Animations can be loaded via the "Load animation..." button.
 
 The models and the animations themselves were made in Blender by yours truly. Since the camera starts at scale 1.0 at the origin, you might have to rotate/scale these a bit to get a good view.
-
 
 ## Animation file format
 
@@ -129,7 +128,7 @@ The script prints to Blender's *System Console* window (Window -> Toggle system 
 You can copy the printed sequence (i.e. `SEQ ... END`) from the console window with CTRL-C and paste it into the .anim file at the right location (i.e. meshes and sequences must be in matching order).
 
 ## Attribution
-Although the submission is individual, it is based on the shared Group 3 submission which I worked on along with **Hidde Nauta**. Kudos to him!
+Although the submission is individual, it is based on the shared Group 3 OpenGL2 submission which I worked on along with **Hidde Nauta**. Kudos to him!!!
 
 The individual submission was of course made with his permission.
 
