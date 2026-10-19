@@ -1,5 +1,5 @@
 
-# "The Animation-Viewer of Theseus"<br>RUG Computer Graphics 2026 OpenGL Contest submission
+# "The Animation-Viewer of Theseus"<br>RUG Computer Graphics 2026 OpenGL Competition submission
 
 ### Avery Kozák (s5559294)
 
@@ -131,5 +131,3 @@ You can copy the printed sequence (i.e. `SEQ ... END`) from the console window w
 Although the submission is individual, it is based on the shared Group 3 OpenGL2 submission which I worked on along with **Hidde Nauta**. Kudos to him!!!
 
 The individual submission was of course made with his permission.
-
-Other than that, I guess don't feed this to an LLM and don't run around claiming it's yours or something like that.
